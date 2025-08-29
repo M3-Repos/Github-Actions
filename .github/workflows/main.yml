@@ -1,34 +1,29 @@
 name: Deploy JCL to Mainframe
+
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           
-      - name: Install Zowe CLI
+      - name: Install Zowe CLI and FTP Plugin
         run: |
           npm install -g @zowe/cli@latest
           zowe plugins install @zowe/zos-ftp-for-zowe-cli@latest
           
-      - name: Create Zowe Profile
-        run: |
-          zowe profiles create zftp mainframe \
-            --host ${{ secrets.MAINFRAME_HOST }} \
-            --port 21 \
-            --user ${{ secrets.MAINFRAME_USER }} \
-            --password ${{ secrets.MAINFRAME_PASSWORD }} \
-            --secure-ftp false
-            
-      - name: Upload and Submit JCL
+      - name: Upload JCL to Mainframe
         run: |
           zowe zos-ftp upload file-to-data-set "hello-world.jcl" "TRAIN70.JCL(HWORLD)" \
             --host ${{ secrets.MAINFRAME_HOST }} \
@@ -36,6 +31,9 @@ jobs:
             --user ${{ secrets.MAINFRAME_USER }} \
             --password ${{ secrets.MAINFRAME_PASSWORD }} \
             --secure-ftp false
+            
+      - name: Submit JCL Job
+        run: |
           zowe zos-ftp submit data-set "TRAIN70.JCL(HWORLD)" \
             --host ${{ secrets.MAINFRAME_HOST }} \
             --port 21 \
