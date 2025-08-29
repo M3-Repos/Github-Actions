@@ -30,5 +30,16 @@ jobs:
             
       - name: Upload and Submit JCL
         run: |
-          zowe zos-ftp upload file-to-data-set "hello-world.jcl" "TRAIN70.JCL(HWORLD)" --zftp-profile mainframe
-          zowe zos-ftp submit data-set "TRAIN70.JCL(HWORLD)" --zftp-profile mainframe --wait-for-active
+          zowe zos-ftp upload file-to-data-set "hello-world.jcl" "TRAIN70.JCL(HWORLD)" \
+            --host ${{ secrets.MAINFRAME_HOST }} \
+            --port 21 \
+            --user ${{ secrets.MAINFRAME_USER }} \
+            --password ${{ secrets.MAINFRAME_PASSWORD }} \
+            --secure-ftp false
+          zowe zos-ftp submit data-set "TRAIN70.JCL(HWORLD)" \
+            --host ${{ secrets.MAINFRAME_HOST }} \
+            --port 21 \
+            --user ${{ secrets.MAINFRAME_USER }} \
+            --password ${{ secrets.MAINFRAME_PASSWORD }} \
+            --secure-ftp false \
+            --wait-for-active
