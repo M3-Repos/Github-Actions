@@ -23,32 +23,21 @@ jobs:
           npm install -g @zowe/cli@latest
           zowe plugins install @zowe/zos-ftp-for-zowe-cli@latest
           
-      - name: Create minimal Zowe config
-        run: |
-          mkdir -p ~/.zowe
-          echo '{"$schema": "./zowe.schema.json", "profiles": {}}' > ~/.zowe/zowe.config.json
-          
       - name: Upload JCL to Mainframe
         run: |
-          zowe zos-ftp upload file-to-data-set "hello-world.jcl" "TRAIN70.JCL(HWORLD)" \
-            --host "${{ secrets.MAINFRAME_HOST }}" \
+          npx zowe zos-ftp upload file-to-data-set "hello-world.jcl" "TRAIN70.JCL(HWORLD)" \
+            --host ${{ secrets.MAINFRAME_HOST }} \
             --port 21 \
-            --user "${{ secrets.MAINFRAME_USER }}" \
-            --password "${{ secrets.MAINFRAME_PASSWORD }}" \
-            --secure-ftp false \
-            --no-prompt
-        env:
-          ZOWE_OPT_NO_PROMPT: true
-          
+            --user ${{ secrets.MAINFRAME_USER }} \
+            --password ${{ secrets.MAINFRAME_PASSWORD }} \
+            --secure-ftp false
+            
       - name: Submit JCL Job
         run: |
-          zowe zos-ftp submit data-set "TRAIN70.JCL(HWORLD)" \
-            --host "${{ secrets.MAINFRAME_HOST }}" \
+          npx zowe zos-ftp submit data-set "TRAIN70.JCL(HWORLD)" \
+            --host ${{ secrets.MAINFRAME_HOST }} \
             --port 21 \
-            --user "${{ secrets.MAINFRAME_USER }}" \
-            --password "${{ secrets.MAINFRAME_PASSWORD }}" \
+            --user ${{ secrets.MAINFRAME_USER }} \
+            --password ${{ secrets.MAINFRAME_PASSWORD }} \
             --secure-ftp false \
-            --no-prompt \
             --wait-for-active
-        env:
-          ZOWE_OPT_NO_PROMPT: true
